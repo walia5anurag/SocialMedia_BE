@@ -13,11 +13,24 @@ exports.getPosts=(req,res)=>{
 ========================================================================================================*/
 
 exports.getPosts=(req,res)=>{
-    const posts=Post.find().select("_id title body")
-    .then(posts=>{
-        res.json({postData:posts})
-})
-     .catch(err=>console.log(err))
+    const userId=req.query
+    console.log(req.query)
+    console.log(userId)
+    Post.find({userId:req.query.userId},(err,result)=>{
+       //find returns array of all result all at once while findOne keep on sending the result when he encounters it
+       
+        if(err||!result){
+            return res.status(400).json({
+                error:'No Record found!'
+            })
+        }
+      
+     
+        //So as to make the response array
+        return res.status(200).json({
+            postData:result
+        })
+    })
 
 }
 /* re-writing this method after using express valdiator

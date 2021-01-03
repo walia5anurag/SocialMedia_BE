@@ -18,7 +18,7 @@ exports.signin=(req,res)=>{
     const {email,password}=req.body
     console.log(req.body)
     User.findOne({email},(err,userResult)=>{
-        console.log("this is result from db",!userResult)
+      
         if(err||!userResult){
             return res.status(400).json({
                 error:'User does not exist! Please signup to create your account'
