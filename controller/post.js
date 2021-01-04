@@ -1,5 +1,5 @@
 const Post=require('../model/post')
-
+const jwt=require('jsonwebtoken')
 /*=================Re-writing the getPosts for accesing posts from DB==================================
 
 exports.getPosts=(req,res)=>{
@@ -13,9 +13,41 @@ exports.getPosts=(req,res)=>{
 ========================================================================================================*/
 
 exports.getPosts=(req,res)=>{
+    var authorization,decoded;
+    if(req.headers && req.headers.authorization){
+        
+        authorization=req.headers.authorization.split(' ')[1];
+    
+        try{
+            decoded=jwt.verify(authorization,process.env.JWT_SECRET)
+         
+        }
+        catch(e){console.log("erorr",e)
+            res.status(401).send('unauthorized')
+        }
+   
+        const userId=decoded.id;
+        Post.find({userId},(err,result)=>{
+            //find returns array of all result all at once while findOne keep on sending the result when he encounters it
+            
+             if(err||!result){
+                 return res.status(400).json({
+                     error:'No Record found!'
+                 })
+             }
+             return res.status(200).json({
+                        postData:result
+                    })
+            })
+            return res.status(500)
+    }
+}
+
+
+    /* Earlier this logic was used when id through params was sent
     const userId=req.query
-    console.log(req.query)
-    console.log(userId)
+ 
+
     Post.find({userId:req.query.userId},(err,result)=>{
        //find returns array of all result all at once while findOne keep on sending the result when he encounters it
        
@@ -33,6 +65,7 @@ exports.getPosts=(req,res)=>{
     })
 
 }
+*/
 /* re-writing this method after using express valdiator
 exports.createPost=(req,res)=>{
     const post=new Post(req.body) //here we are extracting post from request body via. req.body
